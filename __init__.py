@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import pprint as pp
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -43,11 +44,23 @@ def detect_mention(event, say, body):
     say(f'{body["event"]["text"]}')
     matches = usr_ptrn.findall(body["event"]["text"])
     if matches:
-        say(f"{list(match.strip('@') for match in matches)}")
+        say(f"{list(match.strip('@>') for match in matches)}")
     else:
         say("No matches.")
 
-    mentions = list(match.strip('@') for match in matches)
+    mentions = list(match.strip('@>') for match in matches)
+    # say(f"{mentions[0]}")
+    # pp.pp(f"{app.client.team_profile_get()['profile']['fields']}")
+    field_id = ""
+    for field in app.client.team_profile_get()['profile']['fields']:
+        if field["label"] == "Kevlar":
+            field_id = field["id"]
+
+    # pp.pp(f"{app.client.team_profile_get()}", depth=1, width=20)
+    # say(f"{app.client.users_profile_get(user=mentions[0])}")
+    say(f"{app.client.users_profile_get(user=mentions[0])['profile']['fields'][field_id]['value']}")
+    # say(f"{app.client.users_profile_get(user=mentions[0])['fields']}")
+    # for uid in mentions:
 
 
 # Start your app
