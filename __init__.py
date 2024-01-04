@@ -1,7 +1,14 @@
 import os
 import sys
+import re
+
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
+
+import psycopg
+
+# This pattern matches any string starting with an '@'.
+usr_ptrn = re.compile('@[\S]*')
 
 # Initializes your app with your bot token and socket mode handler
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -28,21 +35,19 @@ def message_hello(message, say):
         text=f"Hey there <@{message['user']}>!"
     )
 
-@app.action("button_click")
-def action_button_click(body, ack, say):
-    # Acknowledge the action
-    ack()
-    say(f"<@{body['user']['id']}> clicked the button")
+@app.event({
+    "type": "message",
+    # "subtype": "channel_join"
+})
+def detect_mention(event, say, body):
+    say(f'{body["event"]["text"]}')
+    matches = usr_ptrn.findall(body["event"]["text"])
+    if matches:
+        say(f"{list(match.strip('@') for match in matches)}")
+    else:
+        say("No matches.")
 
-@app.command("/enroll")
-def add_to_blacklist(ack, respond, command):
-    ack()
-    respond(f"{command['text']}")
-
-@app.command("/leave")
-def remove_from_blacklist(ack, respond, command):
-    ack()
-    respond(f"{command['text']}")
+    mentions = list(match.strip('@') for match in matches)
 
 
 # Start your app
