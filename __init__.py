@@ -32,25 +32,31 @@ def detect_mention(event, say, body):
     # Messages of certain subtypes do not contain text, thus we need to terminate early
     if "text" not in body["event"]:
         return
+
     matches = usr_ptrn.findall(body["event"]["text"])
-    if matches:
-        say(f"{list(match.strip('@>') for match in matches)}")
-    else:
+    if not matches:
         # Message does not "@" anyone, so ignore
         return
 
     mentions = list(match.strip('@>') for match in matches)
+    kevlar_uids = []
     for uid in mentions:
         try:
             if app.client.users_profile_get(user=uid)['profile']['fields'][field_id]['value'] == "true":
-                # Kevlar is set, proceed to delete message
-                deflect(channel=event["channel"], ts=event["ts"])
-                say(f"User(s) {app.client.users_profile_get(user=uid)['profile']['display_name']} have Kevlar enabled and do not want to be sniped, message deleted.")
-                break
-                # say(f"{app.client.users_profile_get(user=uid)['profile']['fields'][field_id]['value']}")
+                kevlar_uids.append(uid)
         except KeyError:
             # Kevlar not set
             pass
+
+    if kevlar_uids:
+        # Kevlar is set by at least one user, proceed to delete message
+        for kuid in kevlar_uids:
+            user_str = f"{app.client.users_profile_get(user=kuid)['profile']['display_name'] or app.client.users_profile_get(user=kuid)['profile']['real_name']}"
+            say(f"User {user_str} has Kevlar enabled and does not want to be sniped.")
+
+        deflect(channel=event["channel"], ts=event["ts"])
+        say("Snipe deleted.")
+
     return
 
 
