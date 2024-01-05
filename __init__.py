@@ -40,29 +40,23 @@ def detect_mention(event, say, body):
         return
 
     mentions = list(match.strip('@>') for match in matches)
-    # say(f"{mentions[0]}")
-    # pp.pp(f"{app.client.team_profile_get()['profile']['fields']}")
-
-    # pp.pp(f"{app.client.team_profile_get()}", depth=1, width=20)
-    # say(f"{app.client.users_profile_get(user=mentions[0])}")
     for uid in mentions:
         try:
             if app.client.users_profile_get(user=uid)['profile']['fields'][field_id]['value'] == "true":
                 # Kevlar is set, proceed to delete message
-                say("Deleting message.")
                 deflect(channel=event["channel"], ts=event["ts"])
-                say("Done.")
+                say(f"User(s) {app.client.users_profile_get(user=uid)['profile']['display_name']} have Kevlar enabled and do not want to be sniped, message deleted.")
                 break
                 # say(f"{app.client.users_profile_get(user=uid)['profile']['fields'][field_id]['value']}")
         except KeyError:
             # Kevlar not set
             pass
+    return
 
 
 # Start your app
 if __name__ == "__main__":
     try:
         SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as ki:
         sys.exit()
-
