@@ -43,8 +43,7 @@ def detect_mention(event, say, body):
     kevlar_uids = []
     for uid in mentions:
         try:
-            if app.client.users_profile_get(user=uid)\
-                    ['profile']['fields'][field_id]['value'] == "true":
+            if app.client.users_profile_get(user=uid)['profile']['fields'][field_id]['value'] == "true":
                 kevlar_uids.append(uid)
         except KeyError:
             # Kevlar not set
@@ -55,18 +54,17 @@ def detect_mention(event, say, body):
         kevlar_users = []
         for kuid in kevlar_uids:
             display_name = app.client.users_profile_get(user=kuid)['profile']['display_name']
-            real_name = app.client.users_profile_get(user=kuid)['profile']['real_name'] 
-            user_str = display_name or real_name # real_name if not set
+            real_name = app.client.users_profile_get(user=kuid)['profile']['real_name']
+            user_str = display_name or real_name  # real_name if not set
             kevlar_users.append(user_str)
-                    
 
         deflect(channel=event["channel"], ts=event["ts"])
         if len(kevlar_users) > 1:
             # Pretty printing
             users_str = ", ".join(kevlar_users[:-1]) + " and " + kevlar_users[-1]
-            say(f"Users {users_str} have Kevlar enabled and do not want to be sniped. Snipe deleted.")
+            say(f"Users {users_str} have Kevlar enabled and do not want to be in snipes. Message deleted.")
         else:
-            say(f"User {''.join(kevlar_users)} has Kevlar enabled and does not want to be sniped. Snipe deleted.")
+            say(f"User {''.join(kevlar_users)} has Kevlar enabled and does not want to be snipes. Message deleted.")
 
     return
 
