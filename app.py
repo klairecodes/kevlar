@@ -10,6 +10,8 @@ from slack_bolt.adapter.socket_mode import SocketModeHandler
 usr_ptrn = re.compile('@[\\S]*')
 # Matches the default "user added to channel" Slack message
 usr_add_msg_ptrn = re.compile("was added to #\\w* by @?\\w* ?\\w*.")
+# Matches the default "user has joined the channel" Slack message
+usr_joined_msg_ptrn = re.compile("<*@?\\w*>* has joined the channel")
 
 # Initializes app with a bot token and socket mode handler
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -25,8 +27,11 @@ for field in app.client.team_profile_get()['profile']['fields']:
 
 # Gets a string representation of a user, real_name if display_name not set.
 def get_user_rep(uid):
-    display_name = app.client.users_profile_get(user=uid)['profile']['display_name']
-    real_name = app.client.users_profile_get(user=uid)['profile']['real_name']
+    try:
+        display_name = app.client.users_profile_get(user=uid)['profile']['display_name']
+        real_name = app.client.users_profile_get(user=uid)['profile']['real_name']
+    except KeyError:
+        return "null"
     return display_name or real_name
 
 
@@ -69,7 +74,8 @@ def detect_mention(event, say, body):
     if not matches:
         # Message does not "@" anyone, so ignore
         return
-    if usr_add_msg_ptrn.findall(body["event"]["text"]):
+    # The second case doesn't normally happen, checked just in case that is ever the message format
+    if usr_joined_msg_ptrn.findall(body["event"]["text"]) or usr_add_msg_ptrn.findall(body["event"]["text"]):
         # Message is Slack's "was added to #channel by user.", ignore
         return
 
