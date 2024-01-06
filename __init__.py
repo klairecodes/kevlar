@@ -5,8 +5,11 @@ import re
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-# This pattern matches any string starting with an '@'.
+# Regex
+# Matches any string starting with an '@'.
 usr_ptrn = re.compile('@[\\S]*')
+# Matches the default "user added to channel" Slack message
+usr_add_msg_ptrn = re.compile("was added to #\\w* by @?\\w* ?\\w*.")
 
 # Initializes app with a bot token and socket mode handler
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -18,6 +21,13 @@ field_id = ""
 for field in app.client.team_profile_get()['profile']['fields']:
     if field["label"] == "Kevlar":
         field_id = field["id"]
+
+
+# Gets a string representation of a user, real_name if display_name not set.
+def get_user_rep(uid):
+    display_name = app.client.users_profile_get(user=uid)['profile']['display_name']
+    real_name = app.client.users_profile_get(user=uid)['profile']['real_name']
+    return display_name or real_name
 
 
 # Deletes the provided message in the provided channel
@@ -36,11 +46,12 @@ def kick(user, channel):
 def detect_join(event, say):
     user = event["user"]
     channel_str = app.client.conversations_info(channel=event['channel'])['channel']['name']
+    user_str = get_user_rep(user)
     kevlar_enabled = app.client.users_profile_get(user=user)['profile']['fields'][field_id]['value'] == "true"
     try:
         if kevlar_enabled:
             kick(user, event['channel'])
-            say(f"User *{user}* has Kevlar enabled and does not want to be in #{channel_str}. User has been removed.")
+            say(f"User *{user_str}* has Kevlar enabled and does not want to be in #{channel_str}. User has been removed.")
     except KeyError:
         # Kevlar not set
         return
@@ -58,6 +69,9 @@ def detect_mention(event, say, body):
     if not matches:
         # Message does not "@" anyone, so ignore
         return
+    if usr_add_msg_ptrn.findall(body["event"]["text"]):
+        # Message is Slack's "was added to #channel by user.", ignore
+        return
 
     mentions = list(match.strip('@>') for match in matches)
     kevlar_uids = []
@@ -73,9 +87,7 @@ def detect_mention(event, say, body):
         # Kevlar is set by at least one user
         kevlar_users = []
         for kuid in kevlar_uids:
-            display_name = app.client.users_profile_get(user=kuid)['profile']['display_name']
-            real_name = app.client.users_profile_get(user=kuid)['profile']['real_name']
-            user_str = display_name or real_name  # real_name if not set
+            user_str = get_user_rep(kuid)
             kevlar_users.append(user_str)
 
         delete_message(channel=event["channel"], ts=event["ts"])
