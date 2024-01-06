@@ -61,10 +61,10 @@ def detect_mention(event, say, body):
         deflect(channel=event["channel"], ts=event["ts"])
         if len(kevlar_users) > 1:
             # Pretty printing
-            users_str = ", ".join(kevlar_users[:-1]) + " and " + kevlar_users[-1]
-            say(f"Users {users_str} have Kevlar enabled and do not want to be in snipes. Message deleted.")
+            users_str = ", ".join(kevlar_users[:-1]) + "* and *" + kevlar_users[-1]
+            say(f"Users *{users_str}* have Kevlar enabled and do not want to be in #snipes. Message deleted.")
         else:
-            say(f"User {''.join(kevlar_users)} has Kevlar enabled and does not want to be snipes. Message deleted.")
+            say(f"User *{''.join(kevlar_users)}* has Kevlar enabled and does not want to be #snipes. Message deleted.")
 
     return
 
