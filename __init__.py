@@ -26,10 +26,10 @@ def delete_message(channel, ts):
 
 
 # Removes a provided user from the provided channel
-def kick(channel, user):
+def kick(user, channel):
     print(f"kick {channel}")
     print(f"kicking {user} from {app.client.conversations_info(channel=channel)['name']}")
-    print(f"{app.client.conversations_kick(user=user, channel=channel)}")
+    app.client.conversations_kick(user=user, channel=channel)
 
 
 @app.event({
@@ -38,6 +38,7 @@ def kick(channel, user):
 def detect_join(event, say):
     user = event["user"]
     channel_str = app.client.conversations_info(channel=event['channel'])['channel']['name']
+    print(f"channel name: {channel_str}")
     kevlar_enabled = app.client.users_profile_get(user=user)['profile']['fields'][field_id]['value'] == "true"
     try:
         if kevlar_enabled:
