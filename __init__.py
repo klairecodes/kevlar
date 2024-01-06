@@ -21,13 +21,36 @@ for field in app.client.team_profile_get()['profile']['fields']:
 
 
 # Deletes the provided message in the provided channel
-def deflect(channel, ts):
+def delete_message(channel, ts):
     app.client.chat_delete(channel=channel, ts=ts)
+
+
+# Removes a provided user from the provided channel
+def kick(channel, user):
+    print(f"kick {channel}")
+    print(f"kicking {user} from {app.client.conversations_info(channel=channel)['name']}")
+    print(f"{app.client.conversations_kick(user=user, channel=channel)}")
+
+
+@app.event({
+    "type": "member_joined_channel",
+})
+def detect_join(event, say):
+    user = event["user"]
+    channel_str = app.client.conversations_info(channel=event['channel'])['channel']['name']
+    kevlar_enabled = app.client.users_profile_get(user=user)['profile']['fields'][field_id]['value'] == "true"
+    try:
+        if kevlar_enabled:
+            print(f"event channel {event['channel']}")
+            kick(user, event['channel'])
+            say(f"User *{user}* has Kevlar enabled and does not want to be in #{channel_str}. User has been kicked.")
+    except KeyError:
+        # Kevlar not set
+        return
 
 
 @app.event({
     "type": "message",
-    # "subtype": "channel_join"
 })
 def detect_mention(event, say, body):
     # Messages of certain subtypes do not contain text, need to terminate early
@@ -58,13 +81,14 @@ def detect_mention(event, say, body):
             user_str = display_name or real_name  # real_name if not set
             kevlar_users.append(user_str)
 
-        deflect(channel=event["channel"], ts=event["ts"])
+        delete_message(channel=event["channel"], ts=event["ts"])
+        channel_str = app.client.conversations_info(channel=event['channel'])['channel']['name']
         if len(kevlar_users) > 1:
             # Pretty printing
             users_str = ", ".join(kevlar_users[:-1]) + "* and *" + kevlar_users[-1]
-            say(f"Users *{users_str}* have Kevlar enabled and do not want to be in #snipes. Message deleted.")
+            say(f"Users *{users_str}* have Kevlar enabled and do not want to be in #{channel_str}. Message deleted.")
         else:
-            say(f"User *{''.join(kevlar_users)}* has Kevlar enabled and does not want to be #snipes. Message deleted.")
+            say(f"User *{''.join(kevlar_users)}* has Kevlar enabled and does not want to be in #{channel_str}. Message deleted.")
 
     return
 
