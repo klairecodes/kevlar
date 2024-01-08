@@ -1,12 +1,14 @@
 # Kevlar
 Kevlar is a Slack bot that prevents a user from being added to a channel on an opt-in basis.
 
+
 ## How it works
 When the Kevlar bot is added to a channel, it listens to two events: messages and users joining a channel.  
 
 When a message event happens, it checks the message for if any users were mentioned via `@<user>`, and query's each user's Kevlar custom field. If any user has their field set to true, Kevlar deletes the message and notifies the channel with a message that it did so with the specific user(s) that had Kevlar enabled.  
 
 When a user joins the channel, whether through being mentioned or being added, Kevlar query's that user's Kevlar custom field. If it is set to true, Kevlar leaves the `was added to #<channel> by <user>.` message alone, removes the user from the channel, and notifies the channel with a message that it did so.
+
 
 ## Requirements
 - Python version >= `python 3.11.6`
@@ -69,6 +71,7 @@ When a user joins the channel, whether through being mentioned or being added, K
             - If any of these are redundant (not the minimum required) please let me know by creating an Issue!
         - A user service account with administrator privileges. This will be the account the bot acts as.
 
+
 ## Development
 ### Locally (Linux, Bash/Zsh)
 - From the project's root:
@@ -101,4 +104,17 @@ python3 app.py
     - Note: This field is only visible in **web and desktop** profile settings as of writing. Accessed by clicking your profile at the bottom-left of the page.
 
 ### Docker/Podman (recommended)
-- Coming soon!
+These commands assume you have Docker or Podman installed. Anywhere `podman` is mentioned, `docker` can be substituted.  
+- Build the container
+```
+podman build -t kevlar .
+```
+- Run the container with environment variables specified:
+```
+podman run -e SLACK_APP_TOKEN=$SLACK_APP_TOKEN -e SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN kevlar:latest
+```
+
+
+## Deployment
+### OKD
+### Kubernetes
