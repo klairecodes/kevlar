@@ -74,49 +74,53 @@ When a user joins the channel, whether through being mentioned or being added, K
 
 ## Development
 ### Locally (Linux, Bash/Zsh)
-- From the project's root:
-- Create a Python virtual environment
+From the project's root:
+1. Create a Python virtual environment
 ```bash
 python3 -m venv .venv
 ```
-- Activate your virtual environment
+2. Activate your virtual environment
 ```bash
 source ./.venv/bin/activate
 ```
-- Install dependencies
+3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
-- Create a Slack app with the requirements mentioned above under Slack.
-- Set the following environment variables to the tokens you created in your Slack Application:
-    - These can be found under `OAuth&Permissions -> OAuth Tokens for Your Workspace`
+4. Create a Slack app with the requirements mentioned above under Slack.
+5. Set the following environment variables to the tokens you created in your Slack Application:
 ```bash
 export SLACK_APP_TOKEN=<your-app-token>
 export SLACK_BOT_TOKEN=<your-bot-token>
 ```
-- Run with
-```
+
+These can be found under `OAuth&Permissions -> OAuth Tokens for Your Workspace` in the Slack Admin portal.
+
+6. Run with
+```bash
 python3 app.py
 ```
-- You should see `⚡️ Bolt app is running!` if setup was successful.
-- Add your bot to the Slack channels/conversations that you would like it to be active in.
-- Set a User's About me -> Kevlar field to different values for testing.
-    - Note: This field is only visible in **web and desktop** profile settings as of writing. Accessed by clicking your profile at the bottom-left of the page.
+You should see `⚡️ Bolt app is running!` if setup was successful.
+
+7. Add your bot to the Slack channels/conversations that you would like it to be active in.
+8. Set a User's About me -> Kevlar field to different values for testing.
+    - Note: This field is only visible in **web and desktop** profile settings as of writing. This is accessed by clicking your profile at the bottom-left of the page.
 
 ### Docker/Podman (recommended)
 These commands assume you have Docker or Podman installed. Anywhere `podman` is mentioned, `docker` can be substituted.  
-- Build the container
-```
+1. Build the container
+```bash
 podman build -t kevlar .
 ```
-- Set the following environment variables to the tokens you created in your Slack Application:
-    - These can be found under `OAuth&Permissions -> OAuth Tokens for Your Workspace`
+2. Set the following environment variables to the tokens you created in your Slack Application:
 ```bash
 export SLACK_APP_TOKEN=<your-app-token>
 export SLACK_BOT_TOKEN=<your-bot-token>
 ```
-- Run the container with environment variables specified:
-```
+These can be found under `OAuth&Permissions -> OAuth Tokens for Your Workspace` in the Slack Admin portal.
+
+3. Run the container with environment variables specified:
+```bash
 podman run -e SLACK_APP_TOKEN=$SLACK_APP_TOKEN -e SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN kevlar:latest
 ```
 
@@ -125,31 +129,32 @@ podman run -e SLACK_APP_TOKEN=$SLACK_APP_TOKEN -e SLACK_BOT_TOKEN=$SLACK_BOT_TOK
 ### OKD (4.13.0-0.okd-2023-10-28-065448)
 Steps for the Web UI:  
 In the `Developer` view:
-- Create a new Project with a title of your choice.
-- Create an app within the project
-    - Click `+Add`
-    - Select `Import from Git`
-    - Provide a link to this Git repository, or your fork.
+1. Create a new Project with a title of your choice.
+2. Create an app within the project
+    1. Click `+Add`
+    2. Select `Import from Git`
+    3. Provide a link to this Git repository, or your fork.
         - It should detect the Dockerfile, leave this as-is.
-    - Resource type: `Deployment`
-    - Target port: `3000`.
+    4. Resource type: `Deployment`
+    5. Target port: `3000`.
         - Check Create a route
-    - Create
-- Create a ConfigMap
-    - Name it something like "slack-env"
-    - Add two key/value pairs
+    6. Click `Create`
+3. Create a ConfigMap
+    1. Name it something like "slack-env"
+    2. Add two key/value pairs
         - Key: `SLACK_APP_TOKEN`
             - Value: `<your-app-token>`
         - Key: `SLACK_BOT_TOKEN`
             - Value: `<your-bot-token>`
-    - Save
-- Add the ConfigMap to your Deployment
-    - Navigate to Project -> Deployment -> Environment
-    - In `All values from existing ConfigMap or Secrets (envFrom)`, specify the name of the ConfigMap you created in the dropdown.
-    - Save
-- Redeploy your application
-- Your bot should now be running!
+    3. Click `Save`
+4. Add the ConfigMap to your Deployment
+    1. Navigate to Project -> Deployment -> Environment
+    2. In `All values from existing ConfigMap or Secrets (envFrom)`, specify the name of the ConfigMap you created in the dropdown.
+    3. Click `Save`
+5. Redeploy your application
+
+Your bot should now be running!
 
 
 ### Kubernetes
-- Steps are similar to the OKD deployment, except manually done via yaml and ignoring OKD features.
+Steps are similar to the OKD deployment, except manually done via yaml and ignoring OKD features.
