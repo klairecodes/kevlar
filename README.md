@@ -11,36 +11,36 @@ When a user joins the channel, whether through being mentioned or being added, K
 
 
 ## Requirements
-- Python version >= `python 3.11.6`
-- A Python virtual environment
-- The contents of [requirements.txt](requirements.txt) installed
-- Docker/Podman if developing/deploying via container
+- Python version >= `python 3.11.6`.
+- A Python virtual environment.
+- The contents of [requirements.txt](requirements.txt) installed.
+- Docker/Podman if developing/deploying via container.
 - Slack
-    - A Slack workspace
-        - A Custom Field on a profile with the label "Kevlar" in the About Me section 
+    - A Slack workspace.
+        - A Custom Field on a profile with the label "Kevlar" in the About Me section .
             - Follow [Slack's Administrator Docs](https://slack.com/help/articles/212281478-Customize-member-profiles) for how to get to the admin page.
             - At the configure profile page, scroll to the bottom for the "About me" section. Click `+Add data element`.
-                - Label: Kevlar
-                - Placeholder text: (optional)
-                - Shows up in search: off
-                - Data Source: Selectable options
-                    - Selectable Options: false, true
+                - Label: `Kevlar`
+                - Placeholder text: `(optional)`
+                - Shows up in search: `off`
+                - Data Source: `Selectable options`
+                    - Selectable Options: `false, true`
                 - Click `Save Changes`.
             - Click `Publish Changes`.
-    - A Slack Bot
+    - A Slack Bot.
         - Following Slack's [Getting started with Bolt for Python](https://slack.dev/bolt-python/tutorial/getting-started) guide is advisable.
-        - Socket Mode enabled
-            - This can be done at `https://app.slack.com/app-settings/<your-workspace-id>/<your-app-id>/socket-mode`
-        - Two Slack event Subscriptions (this adds their required scopes automatically)
-            - This page is found at `https://api.slack.com/apps/<your-app-id>/event-subscriptions?`
-            - Enable Events
-            - Click `Subscribe to bot events` and add the following:
-                - `member_joined_channel`
-                - `message.channels`
-                - `message.groups`
-                - `message.im`
-                - `message.mpim`
-        - User and App token Scopes
+        - `Socket Mode` enabled.
+            - This can be done at `https://app.slack.com/app-settings/<your-workspace-id>/<your-app-id>/socket-mode`.
+        - `Events` enabled.
+            - Two Slack event Subscriptions (this adds their required scopes automatically).
+                - This page is found at `https://api.slack.com/apps/<your-app-id>/event-subscriptions?`.
+                - Click `Subscribe to bot events` and add the following:
+                    - `member_joined_channel`
+                    - `message.channels`
+                    - `message.groups`
+                    - `message.im`
+                    - `message.mpim`
+        - User and App token Scopes.
             - A user bot token (starts with `xoxp-`, typically longer than nonuser) with the following OAuth Scopes:
                 - `channels:history`
                 - `channels:manage`
@@ -69,7 +69,7 @@ When a user joins the channel, whether through being mentioned or being added, K
                 - `users.profile:read`
             - If any of these are missing, Kevlar will complain in `stdout` and tell you which scope was required for the failed API call.
             - If any of these are redundant (not the minimum required) please let me know by creating an Issue!
-        - A user service account with administrator privileges. This will be the account the bot acts as.
+    - A user service account with administrator privileges. This will be the account the bot acts as.
 
 
 ## Development
@@ -103,7 +103,7 @@ python3 app.py
 You should see `⚡️ Bolt app is running!` if setup was successful.
 
 7. Add your bot to the Slack channels/conversations that you would like it to be active in.
-8. Set a User's About me -> Kevlar field to different values for testing.
+8. Set a User's `About me -> Kevlar` field to different values for testing.
     - Note: This field is only visible in **web and desktop** profile settings as of writing. This is accessed by clicking your profile at the bottom-left of the page.
 
 ### Docker/Podman (recommended)
@@ -137,7 +137,7 @@ In the `Developer` view:
         - It should detect the Dockerfile, leave this as-is.
     4. Resource type: `Deployment`
     5. Target port: `3000`.
-        - Check Create a route
+        - Check `Create a route`
     6. Click `Create`
 3. Create a ConfigMap
     1. Name it something like "slack-env"
@@ -148,7 +148,7 @@ In the `Developer` view:
             - Value: `<your-bot-token>`
     3. Click `Save`
 4. Add the ConfigMap to your Deployment
-    1. Navigate to Project -> Deployment -> Environment
+    1. Navigate to `Project -> Deployment -> Environment`
     2. In `All values from existing ConfigMap or Secrets (envFrom)`, specify the name of the ConfigMap you created in the dropdown.
     3. Click `Save`
 5. Redeploy your application
