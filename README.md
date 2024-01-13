@@ -47,8 +47,19 @@ Slack
                 - `message.groups`
                 - `message.im`
                 - `message.mpim`
-    - User and App token Scopes.
-        - A user bot token (starts with `xoxp-`, typically longer than nonuser) with the following OAuth Scopes:
+    - App, User and Bot token Scopes.
+        - A Slack app token (starts with `xapp-`) with the following OAuth Scopes:
+            - `channels:history`
+            - `channels:read`
+            - `channels:write`
+            - `chat:write`
+            - `groups:read`
+            - `groups:write`
+            - `im:write`
+            - `mpim:read`
+            - `mpim:write`
+            - `users.profile:read`
+        - A User token (starts with `xoxp-`, typically longer than nonuser) with the following OAuth Scopes:
             - `channels:history`
             - `channels:manage`
             - `channels:read`
@@ -63,21 +74,11 @@ Slack
             - `mpim:write`
             - `users.profile:read`
             - `users:read`
+        - A Bot token (starts with `xoxb-`, typically longer than nonuser) with the following OAuth Scopes:
             - `chat:write.customize`
-        - A Slack app token (starts with `xapp-`)with the following OAuth Scopes:
-            - `channels:history`
-            - `channels:read`
-            - `channels:write`
-            - `chat:write`
-            - `groups:read`
-            - `groups:write`
-            - `im:write`
-            - `mpim:read`
-            - `mpim:write`
-            - `users.profile:read`
         - If any of these are missing, Kevlar will complain in `stdout` and tell you which scope was required for the failed API call.
         - If any of these are redundant (not the minimum required) please let me know by creating an Issue!
-- A user service account with administrator privileges. This will be the account the bot acts as.
+- A user service account with administrator privileges. This will be the account the bot acts as, and should have permission to delete other users' messages.
 
 
 ## Development
@@ -99,6 +100,7 @@ pip install -r requirements.txt
 5. Set the following environment variables to the tokens you created in your Slack Application:
 ```bash
 export SLACK_APP_TOKEN=<your-app-token>
+export SLACK_USER_TOKEN=<your-user-token>
 export SLACK_BOT_TOKEN=<your-bot-token>
 ```
 
@@ -123,13 +125,14 @@ podman build -t kevlar .
 2. Set the following environment variables to the tokens you created in your Slack Application:
 ```bash
 export SLACK_APP_TOKEN=<your-app-token>
+export SLACK_USER_TOKEN=<your-user-token>
 export SLACK_BOT_TOKEN=<your-bot-token>
 ```
 These can be found under `OAuth&Permissions -> OAuth Tokens for Your Workspace` in the Slack Admin portal.
 
 3. Run the container with environment variables specified:
 ```bash
-podman run -e SLACK_APP_TOKEN=$SLACK_APP_TOKEN -e SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN kevlar:latest
+podman run -e SLACK_APP_TOKEN=$SLACK_APP_TOKEN -e SLACK_USER_TOKEN=$SLACK_USER_TOKEN -e SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN kevlar:latest
 ```
 
 
@@ -149,9 +152,11 @@ In the `Developer` view:
     6. Click `Create`
 3. Create a ConfigMap
     1. Name it something like "slack-env"
-    2. Add two key/value pairs
+    2. Add three key/value pairs
         - Key: `SLACK_APP_TOKEN`
             - Value: `<your-app-token>`
+        - Key: `SLACK_USER_TOKEN`
+            - Value: `<your-user-token>`
         - Key: `SLACK_BOT_TOKEN`
             - Value: `<your-bot-token>`
     3. Click `Save`
