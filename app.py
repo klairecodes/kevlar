@@ -12,6 +12,10 @@ usr_ptrn = re.compile('@[\\S]*')
 usr_add_msg_ptrn = re.compile("was added to #\\w* by @?\\w* ?\\w*.")
 # Matches the default "user has joined the channel" Slack message
 usr_joined_msg_ptrn = re.compile("<*@?\\w*>* has joined the channel")
+# Matches the default "user removed from channel" Slack message
+usr_rm_msg_ptrn = re.compile("was added to #\\w* by @?\\w* ?\\w*.")
+# Matches the default "user has left the channel" Slack message
+usr_left_msg_ptrn = re.compile("<*@?\\w*>* has left the channel")
 
 # Initializes app with a bot token and socket mode handler
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -75,7 +79,7 @@ def detect_mention(event, say, body):
         # Message does not "@" anyone, so ignore
         return
     # The second case doesn't normally happen, checked just in case that is ever the message format
-    if usr_joined_msg_ptrn.findall(body["event"]["text"]) or usr_add_msg_ptrn.findall(body["event"]["text"]):
+    if usr_joined_msg_ptrn.findall(body["event"]["text"]) or usr_add_msg_ptrn.findall(body["event"]["text"]) or usr_left_msg_ptrn.findall(body["event"]["text"]) or usr_rm_msg_ptrn.findall(body["event"]["text"]):
         # Message is Slack's "was added to #channel by user.", ignore
         return
 
