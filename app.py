@@ -17,8 +17,12 @@ usr_rm_msg_ptrn = re.compile("was added to #\\w* by @?\\w* ?\\w*.")
 # Matches the default "user has left the channel" Slack message
 usr_left_msg_ptrn = re.compile("<*@?\\w*>* has left the channel")
 
-# Initializes app with a bot token and socket mode handler
-app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
+# The user token is mainly for permissions like deleting messages.
+SLACK_USER_TOKEN = os.environ.get("SLACK_USER_TOKEN")
+# The bot token is for impersonating the Bot when posting messages.
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+# Initializes app with a user token and socket mode handler (app token under the hood)
+app = App(token=SLACK_USER_TOKEN)
 
 # In order to not get rate limited by Slack, we must dynamically fetch the id
 # of the custom field we want manually.
@@ -60,7 +64,7 @@ def detect_join(event, say):
     try:
         if kevlar_enabled:
             kick(user, event['channel'])
-            say(f"User *{user_str}* has Kevlar enabled and does not want to be in #{channel_str}. User has been removed.")
+            say(f"User *{user_str}* has Kevlar enabled and does not want to be in #{channel_str}. User has been removed.", token=SLACK_BOT_TOKEN, channel=event['channel'], icon_emoji=':shield:')
     except KeyError:
         # Kevlar not set
         return
@@ -105,9 +109,9 @@ def detect_mention(event, say, body):
         if len(kevlar_users) > 1:
             # Pretty printing
             users_str = ", ".join(kevlar_users[:-1]) + "* and *" + kevlar_users[-1]
-            say(f"Users *{users_str}* have Kevlar enabled and do not want to be in #{channel_str}. Message deleted.")
+            say(f"Users *{users_str}* have Kevlar enabled and do not want to be in #{channel_str}. Message deleted.", token=SLACK_BOT_TOKEN, channel=event['channel'], icon_emoji=':shield:')
         else:
-            say(f"User *{''.join(kevlar_users)}* has Kevlar enabled and does not want to be in #{channel_str}. Message deleted.")
+            say(f"User *{''.join(kevlar_users)}* has Kevlar enabled and does not want to be in #{channel_str}. Message deleted.", token=SLACK_BOT_TOKEN, channel=event['channel'], icon_emoji=':shield:')
 
     return
 
