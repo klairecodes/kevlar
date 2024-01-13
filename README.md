@@ -63,6 +63,7 @@ Slack
             - `mpim:write`
             - `users.profile:read`
             - `users:read`
+            - `chat:write.customize`
         - A Slack app token (starts with `xapp-`)with the following OAuth Scopes:
             - `channels:history`
             - `channels:read`
